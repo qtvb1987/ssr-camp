@@ -10,4 +10,4 @@ function App(props){
    )
 }
 
-export default <App title="react ssr"></App>
+export default <App title="react ssr001"></App>
