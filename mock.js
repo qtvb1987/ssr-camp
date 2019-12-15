@@ -2,7 +2,7 @@
 const express = require('express')
 
 const app = express()
-app.get('/api/user/info',(req,res)=>{
+app.get('/api/user/info1',(req,res)=>{
     //支持跨域
     res.header('Access-Control-Allow-Origin','*')
     res.header('Access-Control-Allow-Methods','GET,POST,PUT,DELETE')

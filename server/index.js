@@ -29,8 +29,8 @@ app.get('*',(req,res)=>{
       // return match;
     });
     //等待所有网络请求结束再渲染
-
-    Promise.all(promises).then(()=>{
+    //理解和使用Promise.all和Promise.race
+    Promise.race(promises).then(()=>{
       //把react组件，解析成thml
       const content = renderToString(
         <Provider store={store}>
