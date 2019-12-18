@@ -1,5 +1,5 @@
 //首页逻辑
-import axios from 'axios'
+// import axios from 'axios'
 //actionType
 const GET_LIST = 'INDEX/GET_LIST'
 
@@ -11,8 +11,8 @@ const changeList = list=>({
 })
 
 export  const getIndexList = server=>{
-    return (dispatch,getState,axiosInstance)=>{
-        return axios.get('http://localhost:9090/api/course/list')
+    return (dispatch,getState,$axios)=>{
+        return $axios.get('/api/course/list')
         .then(res=>{
             const {list} = res.data
             console.log('list',list)

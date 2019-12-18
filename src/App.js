@@ -3,7 +3,8 @@ import {Route} from 'react-router-dom'
 import Index from './container/Index'
 import About from './container/About'
 import User from './container/User'
- 
+import Notfound from './container/Notfound'
+import './App.css'
 
 // export default (
 //     <div>
@@ -20,8 +21,12 @@ export default [
         path:"/",
         component:Index,
         // loadData:Index.loadData,
-        //exact:true,
-        key:'index'
+        exact:true,
+        key:'index',
+        //嵌套路由
+        // routes:[{
+
+        // }]
     },
     {
         path:"/about",
@@ -34,5 +39,8 @@ export default [
         component:User,
         exact:true,
         key:'user'
+    },
+    {
+        component:Notfound
     }
 ]
