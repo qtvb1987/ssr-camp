@@ -1,4 +1,5 @@
 const path = require('path') 
+const HtmlWebpckPlugin = require('html-webpack-plugin')
 //服务端的webpack
 module.exports = { 
     mode:"development",
@@ -9,6 +10,14 @@ module.exports = {
         filename:'bundle.js',
         path:path.resolve(__dirname,'public')
     },
+    plugins:[
+        new HtmlWebpckPlugin({
+            filename:'index.csr.html',
+            template:'src/index.csr.html',
+            inject:true
+        })
+
+    ],
     module:{
         rules:[
             {
@@ -22,7 +31,12 @@ module.exports = {
             },
             {
                 test:/\.css$/,
-                use:['style-loader','css-loader']
+                use:['style-loader',{
+                    loader:'css-loader',
+                    options:{
+                        modules:true
+                    }
+                }]
             }
         ]
     }

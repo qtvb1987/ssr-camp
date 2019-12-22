@@ -1,10 +1,13 @@
 //这里的node代码。会用babel处理
+import path from 'path'
+import fs from 'fs'
 import React from 'react'
 import {renderToString} from 'react-dom/server'
 import express from 'express'
 import {StaticRouter,matchPath,Route, Switch} from 'react-router-dom'
 import {Provider} from 'react-redux'
 import routes from '../src/App'
+
 import {getServerStore} from '../src/store/store'
 import Header from '../src/component/Header'
 import proxy from 'http-proxy-middleware';
@@ -17,7 +20,24 @@ app.use(
   proxy({ target: 'http://localhost:9090/', changeOrigin: true })
 );
  
+function csrRender(res){
+  //读取csr文件 返回
+  const filename = path.resolve(process.cwd(),'public/index.csr.html')
+  const html = fs.readFileSync(filename,'utf-8')
+  return res.send(html)
+
+}
 app.get('*',(req,res)=>{
+
+    if(req.query._mode=='csr'){
+      console.log('url参数开启csr降级')
+      return csrRender(res)
+    }
+
+    //配置开关开启csr
+    //服务器负载过高 开启csr
+
+
     // const Page = <App title="react ssr"></App>
     
     //获取根据路由渲染出的组件，并且拿到loadDatay方法,获取数据
@@ -36,12 +56,12 @@ app.get('*',(req,res)=>{
 
           //包装后
           //规避报错 可以考虑加日志
-          // const promise = new Promise((resolve,reject)=>{
-          //   loadData(store).then(resolve).catch(resolve)
-          // })
-          // promises.push(promise)
+          const promise = new Promise((resolve,reject)=>{
+            loadData(store).then(resolve).catch(resolve)
+          })
+          promises.push(promise)
 
-          promises.push(loadData(store))
+          //promises.push(loadData(store))
         }
       }
       // return match;
@@ -49,15 +69,18 @@ app.get('*',(req,res)=>{
     //等待所有网络请求结束再渲染
     //理解和使用Promise.all和Promise.race
     //https://developer.mozilla.org/zh-CN/docs/web/JavaScript/Reference/Global_Objects/Promise/allSettled
-    Promise.allSettled(promises).then(()=>{
-      const context = {}
+    //Promise.allSettled
+    Promise.all(promises).then(()=>{
+      const context = {
+        css:[]
+      }
       //把react组件，解析成thml
       const content = renderToString(
         <Provider store={store}>
         <StaticRouter location={req.url} context={context}>
           <Header></Header>
           <Switch>
-          {routes.map(route=><Route {...route}></Route>)}
+          {routes.map(route=><Route key={route.key} {...route}></Route>)}
           </Switch>
          
         </StaticRouter>
@@ -72,12 +95,16 @@ app.get('*',(req,res)=>{
         res.redirect(301,context.url)
       }
 
+      const css = context.css.join('\n')
       //字符串模板
       res.send(`
       <html>
       <head>
       <meta charset="utf-8"/>
       <title>react ssr test</title>
+      <style>
+      ${css}
+      </style>
       </head>
       <body>
         <div id="root">${content}</div>
